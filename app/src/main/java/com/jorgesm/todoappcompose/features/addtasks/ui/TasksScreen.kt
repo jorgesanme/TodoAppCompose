@@ -5,6 +5,6 @@ import androidx.compose.runtime.Composable
 
 
 @Composable
-fun TasksScreen(){
+fun TasksScreen(tasksViewModel: TasksViewModel) {
     Text(text = "Main Screen")
 }
