@@ -70,6 +70,9 @@ dependencies {
     /*Dagger Hilt*/
     implementation("com.google.dagger:hilt-android:2.51")
     kapt("com.google.dagger:hilt-android-compiler:2.51")
+    /*Livecicle*/
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
+    
     
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
