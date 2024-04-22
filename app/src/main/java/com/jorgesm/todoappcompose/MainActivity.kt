@@ -7,9 +7,7 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.jorgesm.todoappcompose.features.addtasks.ui.TasksScreen
 import com.jorgesm.todoappcompose.features.addtasks.ui.TasksViewModel
 import com.jorgesm.todoappcompose.ui.theme.TodoAppComposeTheme
@@ -30,14 +28,5 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    TodoAppComposeTheme {
-        TasksScreen(TasksViewModel())
     }
 }

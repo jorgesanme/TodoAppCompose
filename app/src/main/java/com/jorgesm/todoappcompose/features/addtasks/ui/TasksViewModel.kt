@@ -1,24 +1,45 @@
 package com.jorgesm.todoappcompose.features.addtasks.ui
 
-import android.util.Log
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jorgesm.todoappcompose.features.addtasks.domain.transformToDDBB
+import com.jorgesm.todoappcompose.features.addtasks.domain.AddTaskUseCase
+import com.jorgesm.todoappcompose.features.addtasks.domain.DeleteTaskUseCase
+import com.jorgesm.todoappcompose.features.addtasks.domain.GetTasksUseCase
+import com.jorgesm.todoappcompose.features.addtasks.domain.UpdateTaskUseCase
+import com.jorgesm.todoappcompose.features.addtasks.domain.transformToDomainList
+import com.jorgesm.todoappcompose.features.addtasks.ui.TasksUiState.Error
+import com.jorgesm.todoappcompose.features.addtasks.ui.TasksUiState.Success
 import com.jorgesm.todoappcompose.features.addtasks.ui.models.TaskModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class TasksViewModel @Inject constructor() : ViewModel() {
+class TasksViewModel @Inject constructor(
+    private val addTaskUseCase: AddTaskUseCase,
+    private val updateTaskUseCase: UpdateTaskUseCase,
+    private val deleteTaskUseCase: DeleteTaskUseCase,
+    getTasksUseCase: GetTasksUseCase
+) : ViewModel() {
+    
+    val uiState: StateFlow<TasksUiState> = getTasksUseCase().map { list ->
+        Success(list.transformToDomainList())
+    }
+        .catch { Error(it) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TasksUiState.Loading)
+        
     
     private val _showDialog = MutableStateFlow<Boolean>(false)
     val showDialog: StateFlow<Boolean> get() = _showDialog
     
-    private val _tasksList = mutableStateListOf<TaskModel>()
-    val tasksList: List<TaskModel> get() = _tasksList
     
     fun onDialogClose() {
         viewModelScope.launch {
@@ -27,9 +48,10 @@ class TasksViewModel @Inject constructor() : ViewModel() {
     }
     
     fun onTasksCreated(task: String) {
-        Log.i("yo", task)
-        _tasksList.add(TaskModel(taskName = task))
         onDialogClose()
+        viewModelScope.launch(Dispatchers.IO) {
+            addTaskUseCase(TaskModel(taskName = task).transformToDDBB())
+        }
     }
     
     fun onShowDialogClick() {
@@ -37,14 +59,14 @@ class TasksViewModel @Inject constructor() : ViewModel() {
     }
     
     fun onCheckBoxSelected(item: TaskModel) {
-        val index = _tasksList.indexOf(item)
-        _tasksList[index] = _tasksList[index].let {
-            it.copy(selected = !it.selected)
+        viewModelScope.launch(Dispatchers.IO) {
+            updateTaskUseCase(item.copy(selected = !item.selected).transformToDDBB())
         }
     }
     
     fun onItemRemove(item: TaskModel) {
-        val task = _tasksList.find { it.id == item.id }
-        _tasksList.remove(task)
+        viewModelScope.launch() {
+            deleteTaskUseCase(item.transformToDDBB())
+        }
     }
 }
