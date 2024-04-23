@@ -48,6 +48,8 @@ import com.jorgesm.todoappcompose.features.addtasks.ui.models.TaskModel
 @Composable
 fun TasksScreen(tasksViewModel: TasksViewModel) {
     val showDialog: Boolean by tasksViewModel.showDialog.collectAsStateWithLifecycle()
+    val editDialog: Boolean by tasksViewModel.editDialog.collectAsStateWithLifecycle()
+    val editItem: TaskModel by tasksViewModel.editItem.collectAsStateWithLifecycle()
     val livecycle = LocalLifecycleOwner.current.lifecycle
     val uiState by produceState<TasksUiState>(
         initialValue = TasksUiState.Loading,
@@ -66,10 +68,19 @@ fun TasksScreen(tasksViewModel: TasksViewModel) {
         
         is TasksUiState.Success -> {
             Box(modifier = Modifier.fillMaxSize()) {
-                AddTaskDialog(
-                    show = showDialog,
-                    onDismiss = { tasksViewModel.onDialogClose() },
-                    onTaskAdded = { tasksViewModel.onTasksCreated(it) })
+                if (editDialog) {
+                    EditTaskDialog(
+                        show = editDialog,
+                        item = editItem,
+                        viewModel = tasksViewModel
+                    )
+                    
+                } else {
+                    AddTaskDialog(
+                        show = showDialog,
+                        onDismiss = { tasksViewModel.onDialogClose() },
+                        onTaskAdded = { tasksViewModel.onTasksCreated(it) })
+                }
                 FABDialog(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
@@ -100,7 +111,9 @@ fun ItemTask(item: TaskModel, tasksViewModel: TasksViewModel) {
             .padding(8.dp)
             .pointerInput(Unit) {
                 detectTapGestures(onLongPress = {
-                    tasksViewModel.onItemRemove(item)
+                    tasksViewModel.onEditMode(item)
+                    tasksViewModel.onEditDialogOpen()
+//                    tasksViewModel.onItemRemove(item)
                 })
             },
         border = BorderStroke(0.5.dp, Color.LightGray)
@@ -131,6 +144,53 @@ fun FABDialog(modifier: Modifier, tasksViewModel: TasksViewModel) {
         modifier = modifier
     ) {
         Icon(imageVector = Icons.Filled.Add, contentDescription = "Add Task")
+    }
+}
+
+@Composable
+fun EditTaskDialog(
+    show: Boolean,
+    item: TaskModel,
+    viewModel: TasksViewModel
+) {
+    var myTaskStatus by rememberSaveable { mutableStateOf(item.taskName) }
+    if (show) {
+        Dialog(onDismissRequest = { viewModel.onEditDialogClose() }) {
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .background(Color.White)
+                    .padding(16.dp)
+                    .testTag("addTaskDialog"),
+                verticalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Text(
+                    text = "Editar una tarea",
+                    fontFamily = FontFamily.Cursive,
+                    fontSize = 24.sp,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+                TextField(
+                    value = myTaskStatus,
+                    onValueChange = { myTaskStatus = it },
+                    maxLines = 3,
+                    modifier = Modifier.padding(vertical = 16.dp)
+                )
+                Button(
+                    onClick = {
+                        viewModel.onItemUpdate( item, myTaskStatus)
+                        myTaskStatus = ""
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 32.dp)
+                ) {
+                    Text(text = "Confirm edit")
+                }
+                
+            }
+            
+        }
     }
 }
 

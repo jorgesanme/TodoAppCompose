@@ -40,11 +40,28 @@ class TasksViewModel @Inject constructor(
     private val _showDialog = MutableStateFlow<Boolean>(false)
     val showDialog: StateFlow<Boolean> get() = _showDialog
     
+    private val _editItem = MutableStateFlow<TaskModel>(TaskModel(taskName = ""))
+    val editItem: StateFlow<TaskModel> get() = _editItem
+    
+    private val _editDialog = MutableStateFlow<Boolean>(false)
+    val editDialog: StateFlow<Boolean> get() = _editDialog
+    
     
     fun onDialogClose() {
         viewModelScope.launch {
             _showDialog.value = false
         }
+    }
+    fun onEditDialogOpen(){
+        viewModelScope.launch { _editDialog.value = true }
+    }
+    
+    fun onEditMode(item: TaskModel){
+        _editItem.value = item
+    }
+    
+    fun onEditDialogClose(){
+        viewModelScope.launch { _editDialog.value = false }
     }
     
     fun onTasksCreated(task: String) {
@@ -62,6 +79,12 @@ class TasksViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             updateTaskUseCase(item.copy(selected = !item.selected).transformToDDBB())
         }
+    }
+    fun onItemUpdate(item: TaskModel, newText: String){
+        viewModelScope.launch(Dispatchers.IO) {
+            updateTaskUseCase(item.copy(taskName = newText).transformToDDBB())
+        }
+        onEditDialogClose()
     }
     
     fun onItemRemove(item: TaskModel) {
