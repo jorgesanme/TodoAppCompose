@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -57,11 +58,12 @@ fun TasksScreen(tasksViewModel: TasksViewModel) {
             tasksViewModel.uiState.collect { value = it }
         }
     }
-    when(uiState){
+    when (uiState) {
         is TasksUiState.Error -> {}
         TasksUiState.Loading -> {
             CircularProgressIndicator()
         }
+        
         is TasksUiState.Success -> {
             Box(modifier = Modifier.fillMaxSize()) {
                 AddTaskDialog(
@@ -81,16 +83,14 @@ fun TasksScreen(tasksViewModel: TasksViewModel) {
     }
 }
 
-
 @Composable
 fun TasksList(tasksList: List<TaskModel>, tasksViewModel: TasksViewModel) {
     LazyColumn() {
-        items(tasksList, key = { it.id }){task ->
+        items(tasksList, key = { it.id }) { task ->
             ItemTask(item = task, tasksViewModel = tasksViewModel)
         }
     }
 }
-
 
 @Composable
 fun ItemTask(item: TaskModel, tasksViewModel: TasksViewModel) {
@@ -124,12 +124,6 @@ fun ItemTask(item: TaskModel, tasksViewModel: TasksViewModel) {
     
 }
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun dialogPreview() {
-    AddTaskDialog(show = true, onDismiss = {}, onTaskAdded = {})
-}
-
 @Composable
 fun FABDialog(modifier: Modifier, tasksViewModel: TasksViewModel) {
     FloatingActionButton(
@@ -149,7 +143,8 @@ fun AddTaskDialog(show: Boolean, onDismiss: () -> Unit, onTaskAdded: (String) ->
                 Modifier
                     .fillMaxWidth()
                     .background(Color.White)
-                    .padding(16.dp),
+                    .padding(16.dp)
+                    .testTag("addTaskDialog"),
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
                 Text(
@@ -180,4 +175,10 @@ fun AddTaskDialog(show: Boolean, onDismiss: () -> Unit, onTaskAdded: (String) ->
             
         }
     }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun dialogPreview() {
+    AddTaskDialog(show = true, onDismiss = {}, onTaskAdded = {})
 }
