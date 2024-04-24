@@ -42,6 +42,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import com.jorgesm.todoappcompose.features.addtasks.ui.component.SwipeToDeleteContainer
 import com.jorgesm.todoappcompose.features.addtasks.ui.models.TaskModel
 
 
@@ -105,33 +106,35 @@ fun TasksList(tasksList: List<TaskModel>, tasksViewModel: TasksViewModel) {
 
 @Composable
 fun ItemTask(item: TaskModel, tasksViewModel: TasksViewModel) {
-    Card(
-        Modifier
-            .fillMaxWidth()
-            .padding(8.dp)
-            .pointerInput(Unit) {
-                detectTapGestures(onLongPress = {
-                    tasksViewModel.onEditMode(item)
-                    tasksViewModel.onEditDialogOpen()
-//                    tasksViewModel.onItemRemove(item)
-                })
-            },
-        border = BorderStroke(0.5.dp, Color.LightGray)
-    ) {
-        Row(
+    SwipeToDeleteContainer(item = item, onDelete = { tasksViewModel.onItemRemove(item) }) {
+        Card(
             Modifier
                 .fillMaxWidth()
-                .padding(vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(8.dp)
+                .pointerInput(Unit) {
+                    detectTapGestures(onLongPress = {
+                        tasksViewModel.onEditMode(item)
+                        tasksViewModel.onEditDialogOpen()
+                        //                    tasksViewModel.onItemRemove(item)
+                    })
+                },
+            border = BorderStroke(0.5.dp, Color.LightGray)
         ) {
-            Checkbox(
-                checked = item.selected,
-                onCheckedChange = { tasksViewModel.onCheckBoxSelected(item) })
-            Text(
-                text = item.taskName, modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 4.dp)
-            )
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = item.selected,
+                    onCheckedChange = { tasksViewModel.onCheckBoxSelected(item) })
+                Text(
+                    text = item.taskName, modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 4.dp)
+                )
+            }
         }
     }
     
@@ -178,7 +181,7 @@ fun EditTaskDialog(
                 )
                 Button(
                     onClick = {
-                        viewModel.onItemUpdate( item, myTaskStatus)
+                        viewModel.onItemUpdate(item, myTaskStatus)
                         myTaskStatus = ""
                     },
                     modifier = Modifier
@@ -241,4 +244,5 @@ fun AddTaskDialog(show: Boolean, onDismiss: () -> Unit, onTaskAdded: (String) ->
 @Composable
 fun dialogPreview() {
     AddTaskDialog(show = true, onDismiss = {}, onTaskAdded = {})
+    
 }
