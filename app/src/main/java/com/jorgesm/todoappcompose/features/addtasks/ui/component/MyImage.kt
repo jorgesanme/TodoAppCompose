@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import coil.compose.AsyncImage
@@ -19,7 +20,7 @@ fun MyImage(imgString: Uri, context: Context, modifier: Modifier) {
     if (imgString != null) {
         if (imgString.path?.equals("") == false) {
             AsyncImage(
-                modifier = modifier,
+                modifier = modifier.rotate(90f),
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(BitmapConverter.uriToBitmap(imgString, context = context))
                     .crossfade(true).build(), contentDescription = ""
@@ -38,7 +39,7 @@ fun MyImage(imgString: Uri, context: Context, modifier: Modifier) {
 fun ItemImage(imgString: String, modifier: Modifier) {
     if (imgString.isNotEmpty()) {
         AsyncImage(
-            modifier = modifier,
+            modifier = modifier.rotate(90f),
             model = ImageRequest.Builder(LocalContext.current).data(imgString.convertToBitmap())
                 .crossfade(true).build(), contentDescription = ""
         )

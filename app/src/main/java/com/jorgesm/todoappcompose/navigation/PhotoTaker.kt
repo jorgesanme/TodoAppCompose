@@ -79,10 +79,10 @@ fun PhotoTaker(viewModel: TasksViewModel, navigationController: NavHostControlle
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val imgString = photoUriState
+        val uri2 = photoUriState
 
         MyImage(
-            imgString = imgString,
+            imgString = uri2,
             context = context,
             modifier = Modifier
                 .size(250.dp)
@@ -111,17 +111,25 @@ fun PhotoTaker(viewModel: TasksViewModel, navigationController: NavHostControlle
                     .weight(1f)
                     .padding(horizontal = 4.dp),
                 onClick = {
-                    val uri = photoUriState
-                    val bitmap = BitmapConverter.uriToBitmap(uri, context = context)
-
+                    viewModel.onPhotoUpdate(item, "")
+                    viewModel.onUriUpdate(Uri.EMPTY)
+                    navigationController.navigate(Routes.TaskScreen.route)
+                }
+            ) {
+                Text(text = "Remove")
+            }
+            Button(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 4.dp),
+                onClick = {
+                    val bitmap = BitmapConverter.uriToBitmap(photoUriState, context)
                     var imgString: String = ""
-
                     bitmap.let { it?.let { imgString = BitmapConverter.convertBitmapToString(it) } }
                     val img = imgString
 
                     viewModel.onPhotoUpdate(item, imgString)
                     navigationController.navigate(Routes.TaskScreen.route)
-
                 }) {
                 Text(text = "Save")
             }

@@ -37,7 +37,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -89,17 +88,16 @@ fun TasksScreen(tasksViewModel: TasksViewModel, navigationController: NavHostCon
                         onDismiss = { tasksViewModel.onAddDialogClose() },
                         onTaskAdded = { tasksViewModel.onTasksCreated(it) })
                 }
+                TasksList(
+                    (uiState as TasksUiState.Success).tasks,
+                    tasksViewModel,
+                    navigationController
+                )
                 FABDialog(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .padding(16.dp),
                     tasksViewModel
-
-                )
-                TasksList(
-                    (uiState as TasksUiState.Success).tasks,
-                    tasksViewModel,
-                    navigationController
                 )
             }
         }
@@ -113,7 +111,6 @@ fun TasksList(
     navigationController: NavHostController
 ) {
     LazyColumn() {
-
         items(tasksList, key = { it.id }) { task ->
             ItemTask(item = task, tasksViewModel = tasksViewModel, navigationController)
         }
@@ -135,7 +132,6 @@ fun ItemTask(
                     detectTapGestures(onLongPress = {
                         tasksViewModel.onEditMode(item)
                         tasksViewModel.onEditDialogOpen()
-                        //                    tasksViewModel.onItemRemove(item)
                     })
                 },
             border = BorderStroke(0.5.dp, Color.LightGray)
@@ -165,12 +161,9 @@ fun ItemTask(
                         .weight(1f)
                         .padding(horizontal = 4.dp)
                 )
-
             }
-
         }
     }
-
 }
 
 @Composable
@@ -223,9 +216,7 @@ fun EditTaskDialog(
                 ) {
                     Text(text = "Confirm edit")
                 }
-
             }
-
         }
     }
 }
@@ -266,16 +257,8 @@ fun AddTaskDialog(show: Boolean, onDismiss: () -> Unit, onTaskAdded: (String) ->
                 ) {
                     Text(text = "Add Task")
                 }
-
             }
-
         }
     }
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun dialogPreview() {
-//    AddTaskDialog(show = true, onDismiss = {}, onTaskAdded = {})
 }
 
