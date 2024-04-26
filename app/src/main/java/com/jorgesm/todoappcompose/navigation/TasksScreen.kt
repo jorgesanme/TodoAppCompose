@@ -1,7 +1,8 @@
-package com.jorgesm.todoappcompose.features.addtasks.ui
+package com.jorgesm.todoappcompose.navigation
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -42,12 +44,17 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavHostController
+import com.jorgesm.todoappcompose.features.addtasks.ui.TasksUiState
+import com.jorgesm.todoappcompose.features.addtasks.ui.TasksViewModel
+import com.jorgesm.todoappcompose.features.addtasks.ui.component.ItemImage
 import com.jorgesm.todoappcompose.features.addtasks.ui.component.SwipeToDeleteContainer
+import com.jorgesm.todoappcompose.features.addtasks.ui.models.Routes
 import com.jorgesm.todoappcompose.features.addtasks.ui.models.TaskModel
 
 
 @Composable
-fun TasksScreen(tasksViewModel: TasksViewModel) {
+fun TasksScreen(tasksViewModel: TasksViewModel, navigationController: NavHostController) {
     val showDialog: Boolean by tasksViewModel.showDialog.collectAsStateWithLifecycle()
     val editDialog: Boolean by tasksViewModel.editDialog.collectAsStateWithLifecycle()
     val editItem: TaskModel by tasksViewModel.editItem.collectAsStateWithLifecycle()
@@ -66,7 +73,7 @@ fun TasksScreen(tasksViewModel: TasksViewModel) {
         TasksUiState.Loading -> {
             CircularProgressIndicator()
         }
-        
+
         is TasksUiState.Success -> {
             Box(modifier = Modifier.fillMaxSize()) {
                 if (editDialog) {
@@ -75,11 +82,11 @@ fun TasksScreen(tasksViewModel: TasksViewModel) {
                         item = editItem,
                         viewModel = tasksViewModel
                     )
-                    
+
                 } else {
                     AddTaskDialog(
                         show = showDialog,
-                        onDismiss = { tasksViewModel.onDialogClose() },
+                        onDismiss = { tasksViewModel.onAddDialogClose() },
                         onTaskAdded = { tasksViewModel.onTasksCreated(it) })
                 }
                 FABDialog(
@@ -87,25 +94,38 @@ fun TasksScreen(tasksViewModel: TasksViewModel) {
                         .align(Alignment.BottomEnd)
                         .padding(16.dp),
                     tasksViewModel
-                
+
                 )
-                TasksList((uiState as TasksUiState.Success).tasks, tasksViewModel)
+                TasksList(
+                    (uiState as TasksUiState.Success).tasks,
+                    tasksViewModel,
+                    navigationController
+                )
             }
         }
     }
 }
 
 @Composable
-fun TasksList(tasksList: List<TaskModel>, tasksViewModel: TasksViewModel) {
+fun TasksList(
+    tasksList: List<TaskModel>,
+    tasksViewModel: TasksViewModel,
+    navigationController: NavHostController
+) {
     LazyColumn() {
+
         items(tasksList, key = { it.id }) { task ->
-            ItemTask(item = task, tasksViewModel = tasksViewModel)
+            ItemTask(item = task, tasksViewModel = tasksViewModel, navigationController)
         }
     }
 }
 
 @Composable
-fun ItemTask(item: TaskModel, tasksViewModel: TasksViewModel) {
+fun ItemTask(
+    item: TaskModel,
+    tasksViewModel: TasksViewModel,
+    navigationController: NavHostController
+) {
     SwipeToDeleteContainer(item = item, onDelete = { tasksViewModel.onItemRemove(item) }) {
         Card(
             Modifier
@@ -124,26 +144,39 @@ fun ItemTask(item: TaskModel, tasksViewModel: TasksViewModel) {
                 Modifier
                     .fillMaxWidth()
                     .padding(vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 Checkbox(
                     checked = item.selected,
                     onCheckedChange = { tasksViewModel.onCheckBoxSelected(item) })
+
+                ItemImage(item.imageString, modifier = Modifier
+                    .size(60.dp)
+                    .padding(horizontal = 8.dp, vertical = 8.dp)
+                    .clickable {
+                        tasksViewModel.onPhotoPickerClicked(item)
+                        navigationController.navigate(Routes.PhotoTaker.route)
+                    }
+                )
+
                 Text(
                     text = item.taskName, modifier = Modifier
                         .weight(1f)
                         .padding(horizontal = 4.dp)
                 )
+
             }
+
         }
     }
-    
+
 }
 
 @Composable
 fun FABDialog(modifier: Modifier, tasksViewModel: TasksViewModel) {
     FloatingActionButton(
-        onClick = { tasksViewModel.onShowDialogClick() },
+        onClick = { tasksViewModel.onAddDialogClick() },
         modifier = modifier
     ) {
         Icon(imageVector = Icons.Filled.Add, contentDescription = "Add Task")
@@ -190,9 +223,9 @@ fun EditTaskDialog(
                 ) {
                     Text(text = "Confirm edit")
                 }
-                
+
             }
-            
+
         }
     }
 }
@@ -233,9 +266,9 @@ fun AddTaskDialog(show: Boolean, onDismiss: () -> Unit, onTaskAdded: (String) ->
                 ) {
                     Text(text = "Add Task")
                 }
-                
+
             }
-            
+
         }
     }
 }
@@ -243,6 +276,6 @@ fun AddTaskDialog(show: Boolean, onDismiss: () -> Unit, onTaskAdded: (String) ->
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun dialogPreview() {
-    AddTaskDialog(show = true, onDismiss = {}, onTaskAdded = {})
-    
+//    AddTaskDialog(show = true, onDismiss = {}, onTaskAdded = {})
 }
+

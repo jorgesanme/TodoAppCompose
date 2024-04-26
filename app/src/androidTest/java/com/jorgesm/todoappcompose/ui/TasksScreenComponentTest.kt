@@ -3,7 +3,7 @@ package com.jorgesm.todoappcompose.ui
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import com.jorgesm.todoappcompose.features.addtasks.ui.AddTaskDialog
+import com.jorgesm.todoappcompose.navigation.AddTaskDialog
 import org.junit.Rule
 import org.junit.Test
 

@@ -6,13 +6,15 @@ import com.jorgesm.todoappcompose.features.addtasks.ui.models.TaskModel
 fun TaskModel.transformToDDBB(): TaskEntity = TaskEntity(
     id = this.id,
     taskName = this.taskName,
-    selected = this.selected
+    selected = this.selected,
+    imageString= this.imageString
 )
 
 fun TaskEntity.transformToDomain(): TaskModel = TaskModel(
     id = this.id,
     taskName = this.taskName,
-    selected = this.selected
+    selected = this.selected,
+    imageString= this.imageString
 )
 
 fun List<TaskModel>.transformToDDBBList(): List<TaskEntity> {

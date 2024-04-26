@@ -8,5 +8,6 @@ data class TaskEntity(
     @PrimaryKey
     val id: Int,
     val taskName: String,
-    var selected: Boolean = false
+    var selected: Boolean = false,
+    var imageString: String = ""
 )
