@@ -31,6 +31,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -61,7 +62,6 @@ import com.jorgesm.todoappcompose.features.addtasks.ui.component.ItemImage
 import com.jorgesm.todoappcompose.features.addtasks.ui.component.SwipeToDeleteContainer
 import com.jorgesm.todoappcompose.features.addtasks.ui.models.Routes
 import com.jorgesm.todoappcompose.features.addtasks.ui.models.TaskModel
-import com.jorgesm.todoappcompose.ui.theme.CardBackgroundColor
 import com.jorgesm.todoappcompose.ui.theme.FABColor
 
 
@@ -93,8 +93,7 @@ fun TasksScreen(tasksViewModel: TasksViewModel, navigationController: NavHostCon
                 floatingActionButtonPosition = FabPosition.Center,
                 floatingActionButton = {
                     FABDialog(
-                        modifier = Modifier
-                            .padding(0.dp),
+                        modifier = Modifier,
                         tasksViewModel
                     )
                 },
@@ -108,10 +107,13 @@ fun TasksScreen(tasksViewModel: TasksViewModel, navigationController: NavHostCon
                             )
                         },
                         modifier = Modifier.fillMaxWidth(),
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = FABColor
+                        )
                     )
-                }, modifier = Modifier
+                },
+                modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp)
             ) {
                 Box(
                     modifier = Modifier
@@ -175,7 +177,7 @@ fun ItemTask(
                     })
                 },
             colors = CardDefaults.cardColors(
-                containerColor = CardBackgroundColor,
+                containerColor = Color.White,
 
                 ),
             border = BorderStroke(0.5.dp, Color.LightGray)

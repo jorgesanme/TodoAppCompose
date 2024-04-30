@@ -23,6 +23,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -38,6 +39,7 @@ import com.jorgesm.todoappcompose.features.addtasks.ui.TasksViewModel
 import com.jorgesm.todoappcompose.features.addtasks.ui.component.MyImage
 import com.jorgesm.todoappcompose.features.addtasks.ui.models.Routes
 import com.jorgesm.todoappcompose.features.addtasks.ui.models.TaskModel
+import com.jorgesm.todoappcompose.ui.theme.FABColor
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -73,15 +75,20 @@ fun PhotoTaker(viewModel: TasksViewModel, navigationController: NavHostControlle
         }
     }
     Scaffold(
-        topBar = { TopAppBar(
-            navigationIcon = {
-                IconButton(onClick = { navigationController.navigate(Routes.TaskScreen.route) }) {
-                    Icon(imageVector = Icons.Default.ArrowBack , contentDescription = "volver")
-                }
-            },
-            title = { Text(text = "Hacer fotos") },
+        topBar = {
+            TopAppBar(
+                navigationIcon = {
+                    IconButton(onClick = { navigationController.navigate(Routes.TaskScreen.route) }) {
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "volver")
+                    }
+                },
+                title = { Text(text = "Hacer fotos") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = FABColor
+                )
 
-        ) }
+            )
+        }
     ) {
         Column(
             verticalArrangement = Arrangement.SpaceEvenly,
@@ -91,10 +98,19 @@ fun PhotoTaker(viewModel: TasksViewModel, navigationController: NavHostControlle
                 .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val uri2 = photoUriState
+
+            //Chapuza
+            /*var imgUri: Uri = Uri.EMPTY
+            if (item.imageString.isNotEmpty()) {
+                val bitmap = BitmapConverter.convertStringToBitmap(item.imageString)
+                val imgString = bitmap?.let { BitmapConverter.convertBitmapToString(it) }
+                imgString?.let { imgUri = it.toUri() }
+            }else
+                imgUri = photoUriState*/
+
 
             MyImage(
-                imgString = photoUriState,
+                imgUri = photoUriState,
                 context = context,
                 modifier = Modifier
                     .size(300.dp)

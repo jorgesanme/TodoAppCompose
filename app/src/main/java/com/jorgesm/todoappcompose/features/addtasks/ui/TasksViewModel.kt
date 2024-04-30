@@ -32,7 +32,7 @@ class TasksViewModel @Inject constructor(
 ) : ViewModel() {
     
     val uiState: StateFlow<TasksUiState> = getTasksUseCase().map { list ->
-        Success(list.transformToDomainList())
+        Success(list.sortedBy { it.selected }.transformToDomainList())
     }
         .catch { Error(it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TasksUiState.Loading)
@@ -50,8 +50,8 @@ class TasksViewModel @Inject constructor(
     private val _editDialog = MutableStateFlow<Boolean>(false)
     val editDialog: StateFlow<Boolean> get() = _editDialog
 
-    private val _showPhotoPiker = MutableStateFlow<Boolean>(false)
-    val showPhotoPiker: StateFlow<Boolean> get() = _showPhotoPiker
+//    private val _showPhotoPiker = MutableStateFlow<Boolean>(false)
+//    val showPhotoPiker: StateFlow<Boolean> get() = _showPhotoPiker
     private val _photoUriState = MutableStateFlow<Uri>(Uri.EMPTY)
     val photoUriState: StateFlow<Uri> get() = _photoUriState
 
@@ -62,17 +62,17 @@ class TasksViewModel @Inject constructor(
 
     fun onPhotoPickerClicked(item: TaskModel){
         viewModelScope.launch {
-            _showPhotoPiker.value = true
+//            _showPhotoPiker.value = true
             _lastItemSelected.value = item
         }
 
     }
 
-    private fun onClosePhotoPicker(){
+    /*private fun onClosePhotoPicker(){
         viewModelScope.launch{
             _showPhotoPiker.value = false
         }
-    }
+    }*/
     
     fun onAddDialogClose() {
         viewModelScope.launch {
@@ -114,7 +114,6 @@ class TasksViewModel @Inject constructor(
         }
     }
     fun onPhotoUpdate(item: TaskModel, imgString: String){
-        onClosePhotoPicker()
         viewModelScope.launch(Dispatchers.IO) {
             updateTaskUseCase(item.copy(imageString = imgString).transformToDDBB())
         }

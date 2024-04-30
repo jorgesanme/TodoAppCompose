@@ -18,16 +18,16 @@ import com.jorgesm.todoappcompose.R
 import com.jorgesm.todoappcompose.convertToBitmap
 
 @Composable
-fun MyImage(imgString: Uri, context: Context, modifier: Modifier) {
+fun MyImage(imgUri: Uri, context: Context, modifier: Modifier) {
 
-    if (imgString != null) {
-        if (imgString.path?.equals("") == false) {
+    if (imgUri != null) {
+        if (imgUri.path?.equals("") == false) {
             AsyncImage(
                 modifier = modifier
                     .rotate(90f)
                     .clip(RoundedCornerShape(18f)),
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(BitmapConverter.uriToBitmap(imgString, context = context))
+                    .data(BitmapConverter.uriToBitmap(imgUri, context = context))
                     .crossfade(true).build(),
                 contentScale = ContentScale.Crop,
                 contentDescription = "Image"
