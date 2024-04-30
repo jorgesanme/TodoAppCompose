@@ -108,16 +108,16 @@ class TasksViewModel @Inject constructor(
         }
     }
     fun onItemUpdate(item: TaskModel, newText: String){
+        onEditDialogClose()
         viewModelScope.launch(Dispatchers.IO) {
             updateTaskUseCase(item.copy(taskName = newText).transformToDDBB())
         }
-        onEditDialogClose()
     }
     fun onPhotoUpdate(item: TaskModel, imgString: String){
+        onClosePhotoPicker()
         viewModelScope.launch(Dispatchers.IO) {
             updateTaskUseCase(item.copy(imageString = imgString).transformToDDBB())
         }
-        onClosePhotoPicker()
     }
     
     fun onItemRemove(item: TaskModel) {

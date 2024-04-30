@@ -14,14 +14,19 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -39,6 +44,8 @@ import java.util.Date
 import java.util.Objects
 
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PhotoTaker(viewModel: TasksViewModel, navigationController: NavHostController) {
     val item: TaskModel by viewModel.lastItemSelected.collectAsStateWithLifecycle()
@@ -65,73 +72,82 @@ fun PhotoTaker(viewModel: TasksViewModel, navigationController: NavHostControlle
             Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
         }
     }
-
-    Row(Modifier.padding(16.dp)) {
-        TextButton(onClick = { navigationController.navigate(Routes.TaskScreen.route) }) {
-            Text(text = "Volver", color = Color.LightGray)
-        }
-    }
-    Column(
-        verticalArrangement = Arrangement.Top,
-        modifier =
-        Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        val uri2 = photoUriState
-
-        MyImage(
-            imgString = uri2,
-            context = context,
-            modifier = Modifier
-                .size(250.dp)
-                .padding(16.dp)
-        )
-        Row {
-            Button(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 4.dp),
-                onClick = {
-                    val permissionCheckResult =
-                        ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
-
-                    if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
-                        cameraLauncher.launch(uri)
-                    } else {
-                        // Request a permission
-                        permissionLauncher.launch(Manifest.permission.CAMERA)
-                    }
-                }) {
-                Text(text = "Camera")
-            }
-            Button(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 4.dp),
-                onClick = {
-                    viewModel.onPhotoUpdate(item, "")
-                    viewModel.onUriUpdate(Uri.EMPTY)
-                    navigationController.navigate(Routes.TaskScreen.route)
+    Scaffold(
+        topBar = { TopAppBar(
+            navigationIcon = {
+                IconButton(onClick = { navigationController.navigate(Routes.TaskScreen.route) }) {
+                    Icon(imageVector = Icons.Default.ArrowBack , contentDescription = "volver")
                 }
-            ) {
-                Text(text = "Remove")
-            }
-            Button(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 4.dp),
-                onClick = {
-                    val bitmap = BitmapConverter.uriToBitmap(photoUriState, context)
-                    var imgString: String = ""
-                    bitmap.let { it?.let { imgString = BitmapConverter.convertBitmapToString(it) } }
-                    val img = imgString
+            },
+            title = { Text(text = "Hacer fotos") },
 
-                    viewModel.onPhotoUpdate(item, imgString)
-                    navigationController.navigate(Routes.TaskScreen.route)
-                }) {
-                Text(text = "Save")
+        ) }
+    ) {
+        Column(
+            verticalArrangement = Arrangement.SpaceEvenly,
+            modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            val uri2 = photoUriState
+
+            MyImage(
+                imgString = photoUriState,
+                context = context,
+                modifier = Modifier
+                    .size(300.dp)
+                    .padding(8.dp)
+            )
+            Row() {
+                Button(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 4.dp),
+                    onClick = {
+                        val permissionCheckResult =
+                            ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+
+                        if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
+                            cameraLauncher.launch(uri)
+                        } else {
+                            // Request a permission
+                            permissionLauncher.launch(Manifest.permission.CAMERA)
+                        }
+                    }) {
+                    Text(text = "Camera")
+                }
+                Button(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 4.dp),
+                    onClick = {
+                        viewModel.onPhotoUpdate(item, "")
+                        viewModel.onUriUpdate(Uri.EMPTY)
+                        navigationController.navigate(Routes.TaskScreen.route)
+                    }
+                ) {
+                    Text(text = "Remove")
+                }
+                Button(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 4.dp),
+                    onClick = {
+                        val bitmap = BitmapConverter.uriToBitmap(photoUriState, context)
+                        var imgString: String = ""
+                        bitmap.let {
+                            it?.let {
+                                imgString = BitmapConverter.convertBitmapToString(it)
+                            }
+                        }
+
+                        viewModel.onPhotoUpdate(item, imgString)
+                        navigationController.navigate(Routes.TaskScreen.route)
+                    }) {
+                    Text(text = "Save")
+                }
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.jorgesm.todoappcompose.navigation
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,12 +19,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,11 +39,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -50,8 +61,12 @@ import com.jorgesm.todoappcompose.features.addtasks.ui.component.ItemImage
 import com.jorgesm.todoappcompose.features.addtasks.ui.component.SwipeToDeleteContainer
 import com.jorgesm.todoappcompose.features.addtasks.ui.models.Routes
 import com.jorgesm.todoappcompose.features.addtasks.ui.models.TaskModel
+import com.jorgesm.todoappcompose.ui.theme.CardBackgroundColor
+import com.jorgesm.todoappcompose.ui.theme.FABColor
 
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TasksScreen(tasksViewModel: TasksViewModel, navigationController: NavHostController) {
     val showDialog: Boolean by tasksViewModel.showDialog.collectAsStateWithLifecycle()
@@ -74,31 +89,56 @@ fun TasksScreen(tasksViewModel: TasksViewModel, navigationController: NavHostCon
         }
 
         is TasksUiState.Success -> {
-            Box(modifier = Modifier.fillMaxSize()) {
-                if (editDialog) {
-                    EditTaskDialog(
-                        show = editDialog,
-                        item = editItem,
-                        viewModel = tasksViewModel
+            Scaffold(
+                floatingActionButtonPosition = FabPosition.Center,
+                floatingActionButton = {
+                    FABDialog(
+                        modifier = Modifier
+                            .padding(0.dp),
+                        tasksViewModel
+                    )
+                },
+                topBar = {
+                    TopAppBar(
+                        title = {
+                            Text(
+                                text = "Lista de Tareas",
+                                fontSize = 16.sp,
+                                fontFamily = FontFamily.Serif,
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }, modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 64.dp, bottom = 4.dp)
+                ) {
+                    if (editDialog) {
+                        EditTaskDialog(
+                            show = editDialog,
+                            item = editItem,
+                            viewModel = tasksViewModel
+                        )
+
+                    } else {
+                        AddTaskDialog(
+                            show = showDialog,
+                            onDismiss = { tasksViewModel.onAddDialogClose() },
+                            onTaskAdded = { tasksViewModel.onTasksCreated(it) })
+                    }
+
+                    TasksList(
+                        (uiState as TasksUiState.Success).tasks,
+                        tasksViewModel,
+                        navigationController
                     )
 
-                } else {
-                    AddTaskDialog(
-                        show = showDialog,
-                        onDismiss = { tasksViewModel.onAddDialogClose() },
-                        onTaskAdded = { tasksViewModel.onTasksCreated(it) })
                 }
-                TasksList(
-                    (uiState as TasksUiState.Success).tasks,
-                    tasksViewModel,
-                    navigationController
-                )
-                FABDialog(
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(16.dp),
-                    tasksViewModel
-                )
             }
         }
     }
@@ -134,33 +174,61 @@ fun ItemTask(
                         tasksViewModel.onEditDialogOpen()
                     })
                 },
+            colors = CardDefaults.cardColors(
+                containerColor = CardBackgroundColor,
+
+                ),
             border = BorderStroke(0.5.dp, Color.LightGray)
         ) {
             Row(
-                Modifier
+                modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 4.dp),
+                    .padding(vertical = 16.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                Checkbox(
-                    checked = item.selected,
-                    onCheckedChange = { tasksViewModel.onCheckBoxSelected(item) })
 
-                ItemImage(item.imageString, modifier = Modifier
-                    .size(60.dp)
-                    .padding(horizontal = 8.dp, vertical = 8.dp)
-                    .clickable {
-                        tasksViewModel.onPhotoPickerClicked(item)
-                        navigationController.navigate(Routes.PhotoTaker.route)
-                    }
+                ItemImage(
+                    item.imageString,
+                    modifier = Modifier
+                        .size(70.dp)
+                        .padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
+                        .alpha(if (item.selected) 0.5f else 1f)
+                        .clickable {
+                            tasksViewModel.onPhotoPickerClicked(item)
+                            navigationController.navigate(Routes.PhotoTaker.route)
+                        }
                 )
 
                 Text(
-                    text = item.taskName, modifier = Modifier
+                    text = item.taskName,
+                    style = if (item.selected) {
+                        TextStyle(
+                            textDecoration = TextDecoration.LineThrough,
+                            textAlign = TextAlign.Justify,
+                            fontFamily = FontFamily.Cursive,
+                            fontSize = 24.sp,
+                            color = Color.LightGray
+                        )
+                    } else
+                        TextStyle(
+                            textDecoration = TextDecoration.None,
+                            textAlign = TextAlign.Justify,
+                            fontFamily = FontFamily.Serif,
+                            fontSize = 18.sp,
+                            color = Color.DarkGray
+                        ),
+
+                    modifier = Modifier
                         .weight(1f)
-                        .padding(horizontal = 4.dp)
+                        .padding(start = 8.dp)
                 )
+
+                Checkbox(
+                    checked = item.selected,
+                    modifier = Modifier.size(40.dp),
+                    colors = CheckboxDefaults.colors(checkmarkColor = Color.Green),
+                    onCheckedChange = { tasksViewModel.onCheckBoxSelected(item) })
             }
         }
     }
@@ -170,6 +238,7 @@ fun ItemTask(
 fun FABDialog(modifier: Modifier, tasksViewModel: TasksViewModel) {
     FloatingActionButton(
         onClick = { tasksViewModel.onAddDialogClick() },
+        containerColor = FABColor,
         modifier = modifier
     ) {
         Icon(imageVector = Icons.Filled.Add, contentDescription = "Add Task")
@@ -182,14 +251,15 @@ fun EditTaskDialog(
     item: TaskModel,
     viewModel: TasksViewModel
 ) {
-    var myTaskStatus by rememberSaveable { mutableStateOf(item.taskName) }
+    var myTaskStatus by rememberSaveable { mutableStateOf("") }
+    myTaskStatus = item.taskName
     if (show) {
         Dialog(onDismissRequest = { viewModel.onEditDialogClose() }) {
             Column(
                 Modifier
                     .fillMaxWidth()
                     .background(Color.White)
-                    .padding(16.dp)
+                    .padding(32.dp)
                     .testTag("addTaskDialog"),
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
@@ -199,20 +269,24 @@ fun EditTaskDialog(
                     fontSize = 24.sp,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
-                TextField(
+                OutlinedTextField(
                     value = myTaskStatus,
                     onValueChange = { myTaskStatus = it },
+                    label = {},
                     maxLines = 3,
-                    modifier = Modifier.padding(vertical = 16.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 24.dp, horizontal = 8.dp)
                 )
                 Button(
                     onClick = {
                         viewModel.onItemUpdate(item, myTaskStatus)
-                        myTaskStatus = ""
+                        myTaskStatus = item.taskName
+
                     },
                     modifier = Modifier
-                        .fillMaxWidth()
                         .padding(top = 32.dp)
+                        .align(Alignment.CenterHorizontally)
                 ) {
                     Text(text = "Confirm edit")
                 }
@@ -230,7 +304,7 @@ fun AddTaskDialog(show: Boolean, onDismiss: () -> Unit, onTaskAdded: (String) ->
                 Modifier
                     .fillMaxWidth()
                     .background(Color.White)
-                    .padding(16.dp)
+                    .padding(32.dp)
                     .testTag("addTaskDialog"),
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
@@ -240,11 +314,13 @@ fun AddTaskDialog(show: Boolean, onDismiss: () -> Unit, onTaskAdded: (String) ->
                     fontSize = 24.sp,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
-                TextField(
+                OutlinedTextField(
                     value = myTaskStatus,
                     onValueChange = { myTaskStatus = it },
                     maxLines = 3,
-                    modifier = Modifier.padding(vertical = 16.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 24.dp, horizontal = 8.dp)
                 )
                 Button(
                     onClick = {
@@ -252,8 +328,8 @@ fun AddTaskDialog(show: Boolean, onDismiss: () -> Unit, onTaskAdded: (String) ->
                         myTaskStatus = ""
                     },
                     modifier = Modifier
-                        .fillMaxWidth()
                         .padding(top = 32.dp)
+                        .align(Alignment.CenterHorizontally)
                 ) {
                     Text(text = "Add Task")
                 }
