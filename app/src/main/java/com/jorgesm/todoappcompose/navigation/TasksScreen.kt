@@ -22,7 +22,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
@@ -59,6 +58,7 @@ import androidx.navigation.NavHostController
 import com.jorgesm.todoappcompose.features.addtasks.ui.TasksUiState
 import com.jorgesm.todoappcompose.features.addtasks.ui.TasksViewModel
 import com.jorgesm.todoappcompose.features.addtasks.ui.component.ItemImage
+import com.jorgesm.todoappcompose.features.addtasks.ui.component.LoadingIndicator
 import com.jorgesm.todoappcompose.features.addtasks.ui.component.SwipeToDeleteContainer
 import com.jorgesm.todoappcompose.features.addtasks.ui.models.Routes
 import com.jorgesm.todoappcompose.features.addtasks.ui.models.TaskModel
@@ -85,7 +85,7 @@ fun TasksScreen(tasksViewModel: TasksViewModel, navigationController: NavHostCon
     when (uiState) {
         is TasksUiState.Error -> {}
         TasksUiState.Loading -> {
-            CircularProgressIndicator()
+            LoadingIndicator()
         }
 
         is TasksUiState.Success -> {

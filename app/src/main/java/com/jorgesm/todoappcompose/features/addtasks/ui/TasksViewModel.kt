@@ -35,7 +35,7 @@ class TasksViewModel @Inject constructor(
         Success(list.sortedBy { it.selected }.transformToDomainList())
     }
         .catch { Error(it) }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TasksUiState.Loading)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(10), TasksUiState.Loading)
         
     
     private val _showDialog = MutableStateFlow<Boolean>(false)
@@ -50,47 +50,41 @@ class TasksViewModel @Inject constructor(
     private val _editDialog = MutableStateFlow<Boolean>(false)
     val editDialog: StateFlow<Boolean> get() = _editDialog
 
-//    private val _showPhotoPiker = MutableStateFlow<Boolean>(false)
-//    val showPhotoPiker: StateFlow<Boolean> get() = _showPhotoPiker
     private val _photoUriState = MutableStateFlow<Uri>(Uri.EMPTY)
     val photoUriState: StateFlow<Uri> get() = _photoUriState
 
-    fun onUriUpdate(uri: Uri){
-        viewModelScope.launch(Dispatchers.IO) { _photoUriState.emit(uri)  }
+    fun onUriUpdate(uri: Uri) {
+        viewModelScope.launch(Dispatchers.IO) { _photoUriState.emit(uri) }
     }
 
 
-    fun onPhotoPickerClicked(item: TaskModel){
+    fun onPhotoPickerClicked(item: TaskModel) {
         viewModelScope.launch {
-//            _showPhotoPiker.value = true
             _lastItemSelected.value = item
         }
 
     }
 
-    /*private fun onClosePhotoPicker(){
-        viewModelScope.launch{
-            _showPhotoPiker.value = false
-        }
-    }*/
-    
     fun onAddDialogClose() {
         viewModelScope.launch {
             _showDialog.value = false
         }
     }
+
     fun onAddDialogClick() {
         _showDialog.value = true
     }
-    fun onEditDialogOpen(){
+
+    fun onEditDialogOpen() {
         viewModelScope.launch { _editDialog.value = true }
     }
 
-    fun onEditMode(item: TaskModel){
+    fun onEditMode(item: TaskModel) {
         _editItem.value = item
+        _editDialog.value = true
     }
 
-    fun onEditDialogClose(){
+    fun onEditDialogClose() {
         viewModelScope.launch { _editDialog.value = false }
     }
 
@@ -107,18 +101,20 @@ class TasksViewModel @Inject constructor(
             updateTaskUseCase(item.copy(selected = !item.selected).transformToDDBB())
         }
     }
-    fun onItemUpdate(item: TaskModel, newText: String){
+
+    fun onItemUpdate(item: TaskModel, newText: String) {
         onEditDialogClose()
         viewModelScope.launch(Dispatchers.IO) {
             updateTaskUseCase(item.copy(taskName = newText).transformToDDBB())
         }
     }
-    fun onPhotoUpdate(item: TaskModel, imgString: String){
+
+    fun onPhotoUpdate(item: TaskModel, imgString: String) {
         viewModelScope.launch(Dispatchers.IO) {
             updateTaskUseCase(item.copy(imageString = imgString).transformToDDBB())
         }
     }
-    
+
     fun onItemRemove(item: TaskModel) {
         viewModelScope.launch() {
             deleteTaskUseCase(item.transformToDDBB())
