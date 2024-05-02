@@ -1,5 +1,6 @@
 package com.jorgesm.todoappcompose
 
+import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.content.Context
 import android.graphics.Bitmap
@@ -7,8 +8,11 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Base64
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.io.FileDescriptor
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.Date
 
 
 object BitmapConverter {
@@ -55,4 +59,17 @@ fun String.convertToBitmap(): Bitmap? {
         e.printStackTrace()
         null
     }
+}
+
+@SuppressLint("SimpleDateFormat")
+fun Context.createImageFile(): File {
+    // Create an image file name
+    val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+    val imageFileName = "JPEG_" + timeStamp + "_"
+    val image = File.createTempFile(
+        imageFileName, /* prefix */
+        ".jpg", /* suffix */
+        externalCacheDir      /* directory */
+    )
+    return image
 }

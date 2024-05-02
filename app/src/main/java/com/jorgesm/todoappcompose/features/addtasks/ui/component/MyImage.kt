@@ -1,7 +1,5 @@
 package com.jorgesm.todoappcompose.features.addtasks.ui.component
 
-import android.content.Context
-import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -18,16 +16,16 @@ import com.jorgesm.todoappcompose.R
 import com.jorgesm.todoappcompose.convertToBitmap
 
 @Composable
-fun MyImage(imgUri: Uri, context: Context, modifier: Modifier) {
+fun MyImage(imgUri: String, modifier: Modifier) {
 
     if (imgUri != null) {
-        if (imgUri.path?.equals("") == false) {
+        if (imgUri.isNotEmpty()) {
             AsyncImage(
                 modifier = modifier
                     .rotate(90f)
                     .clip(RoundedCornerShape(18f)),
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(BitmapConverter.uriToBitmap(imgUri, context = context))
+                    .data(BitmapConverter.convertStringToBitmap(imgUri))
                     .crossfade(true).build(),
                 contentScale = ContentScale.Crop,
                 contentDescription = "Image"
@@ -35,7 +33,7 @@ fun MyImage(imgUri: Uri, context: Context, modifier: Modifier) {
         } else {
             Image(
                 modifier = modifier,
-                painter = painterResource(id = R.drawable.ic_camera),
+                painter = painterResource(id = R.drawable.ic_photo),
                 contentScale = ContentScale.Crop,
                 contentDescription = "Else image"
             )
@@ -58,7 +56,7 @@ fun ItemImage(imgString: String, modifier: Modifier) {
     } else {
         Image(
             modifier = modifier,
-            painter = painterResource(id = R.drawable.ic_photo),
+            painter = painterResource(id = R.drawable.ic_camera),
             contentScale = ContentScale.Crop,
             contentDescription = "Else image"
         )

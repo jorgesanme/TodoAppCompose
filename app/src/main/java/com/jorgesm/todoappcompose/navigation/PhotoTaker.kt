@@ -2,7 +2,6 @@ package com.jorgesm.todoappcompose.navigation
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.widget.Toast
@@ -35,14 +34,12 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.jorgesm.todoappcompose.BitmapConverter
+import com.jorgesm.todoappcompose.createImageFile
 import com.jorgesm.todoappcompose.features.addtasks.ui.TasksViewModel
 import com.jorgesm.todoappcompose.features.addtasks.ui.component.MyImage
 import com.jorgesm.todoappcompose.features.addtasks.ui.models.Routes
 import com.jorgesm.todoappcompose.features.addtasks.ui.models.TaskModel
 import com.jorgesm.todoappcompose.ui.theme.FABColor
-import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Objects
 
 
@@ -98,20 +95,16 @@ fun PhotoTaker(viewModel: TasksViewModel, navigationController: NavHostControlle
                 .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            //Chapuza
-            /*var imgUri: Uri = Uri.EMPTY
-            if (item.imageString.isNotEmpty()) {
-                val bitmap = BitmapConverter.convertStringToBitmap(item.imageString)
-                val imgString = bitmap?.let { BitmapConverter.convertBitmapToString(it) }
-                imgString?.let { imgUri = it.toUri() }
-            }else
-                imgUri = photoUriState*/
-
+            var imgString = ""
+            if (item.imageString.isNotEmpty()){
+                imgString = item.imageString
+            }else {
+                val imgBitmap = BitmapConverter.uriToBitmap(photoUriState, context)
+                imgBitmap?.let { imgString = BitmapConverter.convertBitmapToString(it) }
+            }
 
             MyImage(
-                imgUri = photoUriState,
-                context = context,
+                imgUri = imgString,
                 modifier = Modifier
                     .size(300.dp)
                     .padding(8.dp)
@@ -169,16 +162,3 @@ fun PhotoTaker(viewModel: TasksViewModel, navigationController: NavHostControlle
     }
 }
 
-
-@SuppressLint("SimpleDateFormat")
-fun Context.createImageFile(): File {
-    // Create an image file name
-    val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-    val imageFileName = "JPEG_" + timeStamp + "_"
-    val image = File.createTempFile(
-        imageFileName, /* prefix */
-        ".jpg", /* suffix */
-        externalCacheDir      /* directory */
-    )
-    return image
-}
