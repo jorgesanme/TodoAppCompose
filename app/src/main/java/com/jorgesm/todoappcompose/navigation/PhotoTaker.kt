@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import com.jorgesm.todoappcompose.BitmapConverter
 import com.jorgesm.todoappcompose.createImageFile
@@ -40,6 +41,8 @@ import com.jorgesm.todoappcompose.features.addtasks.ui.component.MyImage
 import com.jorgesm.todoappcompose.features.addtasks.ui.models.Routes
 import com.jorgesm.todoappcompose.features.addtasks.ui.models.TaskModel
 import com.jorgesm.todoappcompose.ui.theme.FABColor
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.Objects
 
 
@@ -96,9 +99,9 @@ fun PhotoTaker(viewModel: TasksViewModel, navigationController: NavHostControlle
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             var imgString = ""
-            if (item.imageString.isNotEmpty()){
+            if (item.imageString.isNotEmpty()) {
                 imgString = item.imageString
-            }else {
+            } else {
                 val imgBitmap = BitmapConverter.uriToBitmap(photoUriState, context)
                 imgBitmap?.let { imgString = BitmapConverter.convertBitmapToString(it) }
             }
@@ -132,9 +135,13 @@ fun PhotoTaker(viewModel: TasksViewModel, navigationController: NavHostControlle
                         .weight(1f)
                         .padding(horizontal = 4.dp),
                     onClick = {
-                        viewModel.onPhotoUpdate(item, "")
-                        viewModel.onUriUpdate(Uri.EMPTY)
                         navigationController.navigate(Routes.TaskScreen.route)
+                        viewModel.run {
+                            viewModelScope.launch(Dispatchers.IO) {
+                                onPhotoUpdate(item, "")
+                                onUriUpdate(Uri.EMPTY)
+                            }
+                        }
                     }
                 ) {
                     Text(text = "Remove")
@@ -152,7 +159,11 @@ fun PhotoTaker(viewModel: TasksViewModel, navigationController: NavHostControlle
                             }
                         }
 
-                        viewModel.onPhotoUpdate(item, imgString)
+                        viewModel.run {
+                            this.viewModelScope.launch(Dispatchers.IO) {
+                                onPhotoUpdate(item, imgString)
+                            }
+                        }
                         navigationController.navigate(Routes.TaskScreen.route)
                     }) {
                     Text(text = "Save")

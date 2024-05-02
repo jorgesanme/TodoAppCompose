@@ -57,12 +57,10 @@ class TasksViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) { _photoUriState.emit(uri) }
     }
 
-
     fun onPhotoPickerClicked(item: TaskModel) {
         viewModelScope.launch {
             _lastItemSelected.value = item
         }
-
     }
 
     fun onAddDialogClose() {
@@ -94,7 +92,6 @@ class TasksViewModel @Inject constructor(
             addTaskUseCase(TaskModel(taskName = task).transformToDDBB())
         }
     }
-
 
     fun onCheckBoxSelected(item: TaskModel) {
         viewModelScope.launch(Dispatchers.IO) {
