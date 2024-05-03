@@ -24,7 +24,7 @@ import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
-import com.jorgesm.todoappcompose.features.addtasks.ui.MyText
+import com.jorgesm.todoappcompose.features.addtasks.ui.component.MyText
 import org.junit.Rule
 import org.junit.Test
 

@@ -19,7 +19,7 @@ object BitmapConverter {
 
     fun convertBitmapToString(bitmap: Bitmap): String {
         val baos = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, baos)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 20, baos)
         val byteArray = baos.toByteArray()
         return Base64.encodeToString(byteArray, Base64.DEFAULT)
     }
@@ -48,16 +48,6 @@ object BitmapConverter {
             e.printStackTrace()
         }
         return null
-    }
-}
-
-fun String.convertToBitmap(): Bitmap? {
-    return try {
-        val encodeByte = Base64.decode(this, Base64.DEFAULT)
-        BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.size)
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
     }
 }
 

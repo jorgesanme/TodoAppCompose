@@ -91,12 +91,7 @@ fun TasksScreen(tasksViewModel: TasksViewModel, navigationController: NavHostCon
         is TasksUiState.Success -> {
             Scaffold(
                 floatingActionButtonPosition = FabPosition.Center,
-                floatingActionButton = {
-                    FABDialog(
-                        modifier = Modifier,
-                        tasksViewModel
-                    )
-                },
+                floatingActionButton = { FABDialog( tasksViewModel)},
                 topBar = {
                     TopAppBar(
                         title = {
@@ -237,11 +232,10 @@ fun ItemTask(
 }
 
 @Composable
-fun FABDialog(modifier: Modifier, tasksViewModel: TasksViewModel) {
+fun FABDialog( tasksViewModel: TasksViewModel) {
     FloatingActionButton(
         onClick = { tasksViewModel.onAddDialogClick() },
-        containerColor = FABColor,
-        modifier = modifier
+        containerColor = FABColor
     ) {
         Icon(imageVector = Icons.Filled.Add, contentDescription = "Add Task")
     }

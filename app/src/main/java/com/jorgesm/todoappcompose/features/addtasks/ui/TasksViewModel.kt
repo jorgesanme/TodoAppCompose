@@ -59,27 +59,31 @@ class TasksViewModel @Inject constructor(
 
     fun onPhotoPickerClicked(item: TaskModel) {
         viewModelScope.launch {
-            _lastItemSelected.value = item
+            _lastItemSelected.emit(item)
         }
     }
 
     fun onAddDialogClose() {
         viewModelScope.launch {
-            _showDialog.value = false
+            _showDialog.emit(false)
         }
     }
 
     fun onAddDialogClick() {
-        _showDialog.value = true
+        viewModelScope.launch(Dispatchers.IO){
+        _showDialog.emit(true)
+        }
     }
 
     fun onEditDialogOpen() {
-        viewModelScope.launch { _editDialog.value = true }
+        viewModelScope.launch { _editDialog.emit(true) }
     }
 
     fun onEditMode(item: TaskModel) {
-        _editItem.value = item
-        _editDialog.value = true
+        viewModelScope.launch(Dispatchers.IO) {
+        _editItem.emit(item)
+        _editDialog.emit(true)
+        }
     }
 
     fun onEditDialogClose() {
@@ -94,7 +98,7 @@ class TasksViewModel @Inject constructor(
     }
 
     fun onCheckBoxSelected(item: TaskModel) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.Unconfined) {
             updateTaskUseCase(item.copy(selected = !item.selected).transformToDDBB())
         }
     }

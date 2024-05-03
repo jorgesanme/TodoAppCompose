@@ -41,8 +41,6 @@ import com.jorgesm.todoappcompose.features.addtasks.ui.component.MyImage
 import com.jorgesm.todoappcompose.features.addtasks.ui.models.Routes
 import com.jorgesm.todoappcompose.features.addtasks.ui.models.TaskModel
 import com.jorgesm.todoappcompose.ui.theme.FABColor
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.util.Objects
 
 
@@ -136,12 +134,8 @@ fun PhotoTaker(viewModel: TasksViewModel, navigationController: NavHostControlle
                         .padding(horizontal = 4.dp),
                     onClick = {
                         navigationController.navigate(Routes.TaskScreen.route)
-                        viewModel.run {
-                            viewModelScope.launch(Dispatchers.IO) {
-                                onPhotoUpdate(item, "")
-                                onUriUpdate(Uri.EMPTY)
-                            }
-                        }
+                        viewModel.onPhotoUpdate(item, "")
+                        viewModel.onUriUpdate(Uri.EMPTY)
                     }
                 ) {
                     Text(text = "Remove")
@@ -158,12 +152,7 @@ fun PhotoTaker(viewModel: TasksViewModel, navigationController: NavHostControlle
                                 imgString = BitmapConverter.convertBitmapToString(it)
                             }
                         }
-
-                        viewModel.run {
-                            this.viewModelScope.launch(Dispatchers.IO) {
-                                onPhotoUpdate(item, imgString)
-                            }
-                        }
+                        viewModel.onPhotoUpdate(item, imgString)
                         navigationController.navigate(Routes.TaskScreen.route)
                     }) {
                     Text(text = "Save")

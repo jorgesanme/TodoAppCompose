@@ -13,7 +13,6 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.jorgesm.todoappcompose.BitmapConverter
 import com.jorgesm.todoappcompose.R
-import com.jorgesm.todoappcompose.convertToBitmap
 
 @Composable
 fun MyImage(imgUri: String, modifier: Modifier) {
@@ -48,7 +47,8 @@ fun ItemImage(imgString: String, modifier: Modifier) {
             modifier = modifier
                 .rotate(90f)
                 .clip(RoundedCornerShape(25f)),
-            model = ImageRequest.Builder(LocalContext.current).data(imgString.convertToBitmap())
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(BitmapConverter.convertStringToBitmap(imgString))
                 .crossfade(true).build(),
             contentDescription = "Task Image",
             contentScale = ContentScale.Crop

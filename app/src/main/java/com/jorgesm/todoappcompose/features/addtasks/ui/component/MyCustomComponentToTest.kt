@@ -1,4 +1,4 @@
-package com.jorgesm.todoappcompose.features.addtasks.ui
+package com.jorgesm.todoappcompose.features.addtasks.ui.component
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
