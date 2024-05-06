@@ -1,2 +1,5 @@
 # TodoAppCompose
-a todo app using Jetpack compose
+A todo app using:
+1. Jetpack compose
+2. Hilt
+3. Room   
